@@ -51,6 +51,7 @@ export default function CocinaIndex({ pedidos }: Props) {
 
     const pendientes = pedidos.filter((p) => p.estado === 'pendiente');
     const enProgreso = pedidos.filter((p) => p.estado === 'en_progreso');
+    const cancelados = pedidos.filter((p) => p.estado === 'cancelado');
 
     return (
         <AppLayout>
@@ -68,7 +69,7 @@ export default function CocinaIndex({ pedidos }: Props) {
                     </Button>
                 </div>
 
-                <div className="grid gap-6 md:grid-cols-2">
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {/* Pedidos Pendientes */}
                     <div className="space-y-4">
                         <h2 className="text-xl font-semibold">Pendientes</h2>
@@ -131,6 +132,26 @@ export default function CocinaIndex({ pedidos }: Props) {
                                             <PlayIcon className="mr-2 h-4 w-4" />
                                             Comenzar a Preparar
                                         </Button>
+                                        <div className="flex gap-2">
+                                            <Button
+                                                className="flex-1"
+                                                variant="outline"
+                                                onClick={() => router.visit(`/pedidos/${pedido.id}/edit`)}
+                                            >
+                                                Modificar
+                                            </Button>
+                                            <Button
+                                                className="flex-1"
+                                                variant="destructive"
+                                                onClick={() => {
+                                                    if (confirm('¿Estás seguro de cancelar este pedido?')) {
+                                                        router.post(`/cocina/${pedido.id}/cancelar`);
+                                                    }
+                                                }}
+                                            >
+                                                Cancelar
+                                            </Button>
+                                        </div>
                                     </CardContent>
                                 </Card>
                             ))
@@ -200,11 +221,70 @@ export default function CocinaIndex({ pedidos }: Props) {
                                             <CheckCircleIcon className="mr-2 h-4 w-4" />
                                             Marcar como Listo
                                         </Button>
+                                        <div className="flex gap-2">
+                                            <Button
+                                                className="flex-1"
+                                                variant="outline"
+                                                onClick={() => router.visit(`/pedidos/${pedido.id}/edit`)}
+                                            >
+                                                Modificar
+                                            </Button>
+                                            <Button
+                                                className="flex-1"
+                                                variant="destructive"
+                                                onClick={() => {
+                                                    if (confirm('¿Estás seguro de cancelar este pedido?')) {
+                                                        router.post(`/cocina/${pedido.id}/cancelar`);
+                                                    }
+                                                }}
+                                            >
+                                                Cancelar
+                                            </Button>
+                                        </div>
                                     </CardContent>
                                 </Card>
                             ))
                         )}
                     </div>
+
+                    {/* Pedidos Cancelados */}
+                    {cancelados.length > 0 && (
+                        <div className="space-y-4 md:col-span-2 lg:col-span-1">
+                            <h2 className="text-xl font-semibold text-red-600">Cancelados (Recientes)</h2>
+                            {cancelados.map((pedido) => (
+                                <Card key={pedido.id} className="border-red-500 opacity-75">
+                                    <CardHeader>
+                                        <div className="flex items-start justify-between">
+                                            <div>
+                                                <CardTitle className="flex items-center gap-2 line-through">
+                                                    Pedido #{pedido.id}
+                                                    <Badge variant="secondary">{pedido.mesa?.numero || 'Sin mesa'}</Badge>
+                                                </CardTitle>
+                                                <CardDescription className="flex items-center gap-2 mt-1">
+                                                    <ClockIcon className="h-3 w-3" />
+                                                    {tiempoTranscurrido(pedido.created_at)}
+                                                </CardDescription>
+                                            </div>
+                                            <Badge variant="destructive">Cancelado</Badge>
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="space-y-2">
+                                            {pedido.items.map((item) => (
+                                                <div key={item.id} className="flex justify-between items-start border-b pb-2">
+                                                    <div>
+                                                        <span className="font-medium line-through">
+                                                            {item.cantidad}x {item.producto?.nombre}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
         </AppLayout>

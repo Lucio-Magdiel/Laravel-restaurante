@@ -47,12 +47,13 @@ export default function ProductosIndex({ productos }: Props) {
                                 <TableHead>Tipo</TableHead>
                                 <TableHead>Precio</TableHead>
                                 <TableHead>Estado</TableHead>
+                                <TableHead>Acciones</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {productos.data.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={5} className="text-center text-muted-foreground">
+                                    <TableCell colSpan={6} className="text-center text-muted-foreground">
                                         No hay productos registrados
                                     </TableCell>
                                 </TableRow>
@@ -67,6 +68,26 @@ export default function ProductosIndex({ productos }: Props) {
                                             <Badge variant={producto.activo ? 'default' : 'secondary'}>
                                                 {producto.activo ? 'Activo' : 'Inactivo'}
                                             </Badge>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex gap-2">
+                                                <Link href={`/productos/${producto.id}/edit`}>
+                                                    <Button size="sm" variant="secondary">
+                                                        Editar
+                                                    </Button>
+                                                </Link>
+                                                <Button
+                                                    size="sm"
+                                                    variant="destructive"
+                                                    onClick={() => {
+                                                        if (confirm('¿Estás seguro de eliminar este producto?')) {
+                                                            router.delete(`/productos/${producto.id}`);
+                                                        }
+                                                    }}
+                                                >
+                                                    Eliminar
+                                                </Button>
+                                            </div>
                                         </TableCell>
                                     </TableRow>
                                 ))

@@ -46,4 +46,29 @@ class ClienteWebController extends Controller
         Cliente::create($data);
         return redirect()->route('clientes.index')->with('success', 'Cliente creado correctamente');
     }
+
+    public function edit(Cliente $cliente): Response
+    {
+        return Inertia::render('clientes/edit', [
+            'cliente' => $cliente,
+        ]);
+    }
+
+    public function update(Request $request, Cliente $cliente)
+    {
+        $data = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'telefono' => 'nullable|string|max:50',
+            'documento' => 'nullable|string|max:50',
+        ]);
+        $cliente->update($data);
+        return redirect()->route('clientes.index')->with('success', 'Cliente actualizado correctamente');
+    }
+
+    public function destroy(Cliente $cliente)
+    {
+        $cliente->delete();
+        return redirect()->route('clientes.index')->with('success', 'Cliente eliminado correctamente');
+    }
 }

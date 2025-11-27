@@ -29,49 +29,78 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
     // Clientes
-    Route::get('/clientes', [ClienteWebController::class, 'index'])->name('clientes.index');
-    Route::get('/clientes/create', [ClienteWebController::class, 'create'])->name('clientes.create');
-    Route::post('/clientes', [ClienteWebController::class, 'store'])->name('clientes.store');
+    Route::middleware(['role:admin,mesero'])->group(function () {
+        Route::get('/clientes', [ClienteWebController::class, 'index'])->name('clientes.index');
+        Route::get('/clientes/create', [ClienteWebController::class, 'create'])->name('clientes.create');
+        Route::post('/clientes', [ClienteWebController::class, 'store'])->name('clientes.store');
+        Route::get('/clientes/{cliente}/edit', [ClienteWebController::class, 'edit'])->name('clientes.edit');
+        Route::put('/clientes/{cliente}', [ClienteWebController::class, 'update'])->name('clientes.update');
+        Route::delete('/clientes/{cliente}', [ClienteWebController::class, 'destroy'])->name('clientes.destroy');
+    });
 
     // Mesas
-    Route::get('/mesas', [MesaWebController::class, 'index'])->name('mesas.index');
-    Route::get('/mesas/create', [MesaWebController::class, 'create'])->name('mesas.create');
-    Route::post('/mesas', [MesaWebController::class, 'store'])->name('mesas.store');
+    Route::middleware(['role:admin,mesero'])->group(function () {
+        Route::get('/mesas', [MesaWebController::class, 'index'])->name('mesas.index');
+        Route::get('/mesas/create', [MesaWebController::class, 'create'])->name('mesas.create');
+        Route::post('/mesas', [MesaWebController::class, 'store'])->name('mesas.store');
+        Route::get('/mesas/{mesa}/edit', [MesaWebController::class, 'edit'])->name('mesas.edit');
+        Route::put('/mesas/{mesa}', [MesaWebController::class, 'update'])->name('mesas.update');
+        Route::delete('/mesas/{mesa}', [MesaWebController::class, 'destroy'])->name('mesas.destroy');
+    });
 
     // Productos
-    Route::get('/productos', [ProductoWebController::class, 'index'])->name('productos.index');
-    Route::get('/productos/create', [ProductoWebController::class, 'create'])->name('productos.create');
-    Route::post('/productos', [ProductoWebController::class, 'store'])->name('productos.store');
+    Route::middleware(['role:admin,mesero'])->group(function () {
+        Route::get('/productos', [ProductoWebController::class, 'index'])->name('productos.index');
+        Route::get('/productos/create', [ProductoWebController::class, 'create'])->name('productos.create');
+        Route::post('/productos', [ProductoWebController::class, 'store'])->name('productos.store');
+        Route::get('/productos/{producto}/edit', [ProductoWebController::class, 'edit'])->name('productos.edit');
+        Route::put('/productos/{producto}', [ProductoWebController::class, 'update'])->name('productos.update');
+        Route::delete('/productos/{producto}', [ProductoWebController::class, 'destroy'])->name('productos.destroy');
+    });
 
     // Pedidos
-    Route::get('/pedidos', [PedidoWebController::class, 'index'])->name('pedidos.index');
-    Route::get('/pedidos/create', [PedidoWebController::class, 'create'])->name('pedidos.create');
-    Route::post('/pedidos', [PedidoWebController::class, 'store'])->name('pedidos.store');
-    Route::get('/pedidos/{pedido}', [PedidoWebController::class, 'show'])->name('pedidos.show');
+    Route::middleware(['role:admin,mesero'])->group(function () {
+        Route::get('/pedidos', [PedidoWebController::class, 'index'])->name('pedidos.index');
+        Route::get('/pedidos/create', [PedidoWebController::class, 'create'])->name('pedidos.create');
+        Route::post('/pedidos', [PedidoWebController::class, 'store'])->name('pedidos.store');
+        Route::get('/pedidos/{pedido}/edit', [PedidoWebController::class, 'edit'])->name('pedidos.edit');
+        Route::put('/pedidos/{pedido}', [PedidoWebController::class, 'update'])->name('pedidos.update');
+        Route::delete('/pedidos/{pedido}', [PedidoWebController::class, 'destroy'])->name('pedidos.destroy');
+        Route::get('/pedidos/{pedido}', [PedidoWebController::class, 'show'])->name('pedidos.show');
+    });
 
     // Cocina
-    Route::get('/cocina', [CocinaController::class, 'index'])->name('cocina.index');
-    Route::post('/cocina/{pedido}/estado', [CocinaController::class, 'cambiarEstado'])->name('cocina.cambiarEstado');
+    Route::middleware(['role:admin,cocina'])->group(function () {
+        Route::get('/cocina', [CocinaController::class, 'index'])->name('cocina.index');
+        Route::post('/cocina/{pedido}/estado', [CocinaController::class, 'cambiarEstado'])->name('cocina.estado');
+        Route::post('/cocina/{pedido}/cancelar', [CocinaController::class, 'cancelar'])->name('cocina.cancelar');
+    });
 
     // Caja
-    Route::get('/caja', [CajaController::class, 'index'])->name('caja.index');
-    Route::post('/caja/{pedido}/pagar', [CajaController::class, 'pagarPedido'])->name('caja.pagarPedido');
+    Route::middleware(['role:admin,caja'])->group(function () {
+        Route::get('/caja', [CajaController::class, 'index'])->name('caja.index');
+        Route::post('/caja/{pedido}/pagar', [CajaController::class, 'pagarPedido'])->name('caja.pagarPedido');
+    });
 
     // Reservas
-    Route::get('/reservas', [ReservaWebController::class, 'index'])->name('reservas.index');
-    Route::get('/reservas/create', [ReservaWebController::class, 'create'])->name('reservas.create');
-    Route::post('/reservas', [ReservaWebController::class, 'store'])->name('reservas.store');
-    Route::get('/reservas/{reserva}', [ReservaWebController::class, 'show'])->name('reservas.show');
-    Route::delete('/reservas/{reserva}', [ReservaWebController::class, 'destroy'])->name('reservas.destroy');
-    Route::get('/reservas/calendario/view', [ReservaWebController::class, 'calendario'])->name('reservas.calendario');
-    Route::post('/reservas/{reserva}/confirmar', [ReservaWebController::class, 'confirmar'])->name('reservas.confirmar');
-    Route::post('/reservas/{reserva}/completar', [ReservaWebController::class, 'completar'])->name('reservas.completar');
+    Route::middleware(['role:admin,mesero'])->group(function () {
+        Route::get('/reservas', [ReservaWebController::class, 'index'])->name('reservas.index');
+        Route::get('/reservas/create', [ReservaWebController::class, 'create'])->name('reservas.create');
+        Route::post('/reservas', [ReservaWebController::class, 'store'])->name('reservas.store');
+        Route::get('/reservas/{reserva}', [ReservaWebController::class, 'show'])->name('reservas.show');
+        Route::delete('/reservas/{reserva}', [ReservaWebController::class, 'destroy'])->name('reservas.destroy');
+        Route::get('/reservas/calendario/view', [ReservaWebController::class, 'calendario'])->name('reservas.calendario');
+        Route::post('/reservas/{reserva}/confirmar', [ReservaWebController::class, 'confirmar'])->name('reservas.confirmar');
+        Route::post('/reservas/{reserva}/completar', [ReservaWebController::class, 'completar'])->name('reservas.completar');
+    });
 
     // Reportes
-    Route::get('/reportes', [\App\Http\Controllers\Web\ReporteController::class, 'index'])->name('reportes.index');
-    Route::get('/reportes/ventas', [\App\Http\Controllers\Web\ReporteController::class, 'ventasDiarias'])->name('reportes.ventas');
-    Route::get('/reportes/ventas/pdf', [\App\Http\Controllers\Web\ReporteController::class, 'ventasDiariasPDF'])->name('reportes.ventas.pdf');
-    Route::get('/reportes/boleta/{pedido}', [\App\Http\Controllers\Web\ReporteController::class, 'boletaPDF'])->name('reportes.boleta');
+    Route::middleware(['role:admin'])->group(function () {
+        Route::get('/reportes', [\App\Http\Controllers\Web\ReporteController::class, 'index'])->name('reportes.index');
+        Route::get('/reportes/ventas', [\App\Http\Controllers\Web\ReporteController::class, 'ventasDiarias'])->name('reportes.ventas');
+        Route::get('/reportes/ventas/pdf', [\App\Http\Controllers\Web\ReporteController::class, 'ventasDiariasPDF'])->name('reportes.ventas.pdf');
+        Route::get('/reportes/boleta/{pedido}', [\App\Http\Controllers\Web\ReporteController::class, 'boletaPDF'])->name('reportes.boleta');
+    });
 });
 
 require __DIR__.'/settings.php';

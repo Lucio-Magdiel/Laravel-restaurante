@@ -69,12 +69,13 @@ export default function ClientesIndex({ clientes, filters }: Props) {
                                 <TableHead>Email</TableHead>
                                 <TableHead>Teléfono</TableHead>
                                 <TableHead>Documento</TableHead>
+                                <TableHead>Acciones</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {clientes.data.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={4} className="text-center text-muted-foreground">
+                                    <TableCell colSpan={5} className="text-center text-muted-foreground">
                                         No hay clientes registrados
                                     </TableCell>
                                 </TableRow>
@@ -85,6 +86,26 @@ export default function ClientesIndex({ clientes, filters }: Props) {
                                         <TableCell>{cliente.email || '-'}</TableCell>
                                         <TableCell>{cliente.telefono || '-'}</TableCell>
                                         <TableCell>{cliente.documento || '-'}</TableCell>
+                                        <TableCell>
+                                            <div className="flex gap-2">
+                                                <Link href={`/clientes/${cliente.id}/edit`}>
+                                                    <Button size="sm" variant="secondary">
+                                                        Editar
+                                                    </Button>
+                                                </Link>
+                                                <Button
+                                                    size="sm"
+                                                    variant="destructive"
+                                                    onClick={() => {
+                                                        if (confirm('¿Estás seguro de eliminar este cliente?')) {
+                                                            router.delete(`/clientes/${cliente.id}`);
+                                                        }
+                                                    }}
+                                                >
+                                                    Eliminar
+                                                </Button>
+                                            </div>
+                                        </TableCell>
                                     </TableRow>
                                 ))
                             )}

@@ -42,4 +42,9 @@ class Pedido extends Model
     {
         return $this->hasMany(Pago::class);
     }
+
+    public function pago()
+    {
+        return $this->hasOne(Pago::class)->latestOfMany();
+    }
 }

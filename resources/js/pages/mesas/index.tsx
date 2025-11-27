@@ -1,5 +1,5 @@
 import AppLayout from '@/layouts/app-layout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -47,12 +47,13 @@ export default function MesasIndex({ mesas }: Props) {
                                 <TableHead>Capacidad</TableHead>
                                 <TableHead>Ubicación</TableHead>
                                 <TableHead>Estado</TableHead>
+                                <TableHead>Acciones</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {mesas.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={4} className="text-center text-muted-foreground">
+                                    <TableCell colSpan={5} className="text-center text-muted-foreground">
                                         No hay mesas registradas
                                     </TableCell>
                                 </TableRow>
@@ -64,6 +65,26 @@ export default function MesasIndex({ mesas }: Props) {
                                         <TableCell>{mesa.ubicacion || '-'}</TableCell>
                                         <TableCell>
                                             <Badge className={estadoColors[mesa.estado]}>{mesa.estado}</Badge>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex gap-2">
+                                                <Link href={`/mesas/${mesa.id}/edit`}>
+                                                    <Button size="sm" variant="secondary">
+                                                        Editar
+                                                    </Button>
+                                                </Link>
+                                                <Button
+                                                    size="sm"
+                                                    variant="destructive"
+                                                    onClick={() => {
+                                                        if (confirm('¿Estás seguro de eliminar esta mesa?')) {
+                                                            router.delete(`/mesas/${mesa.id}`);
+                                                        }
+                                                    }}
+                                                >
+                                                    Eliminar
+                                                </Button>
+                                            </div>
                                         </TableCell>
                                     </TableRow>
                                 ))

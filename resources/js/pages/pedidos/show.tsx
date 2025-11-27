@@ -1,5 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
-import { Head } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -58,7 +59,25 @@ export default function PedidosShow({ pedido }: Props) {
                                         Creado el {new Date(pedido.created_at).toLocaleString('es-PE')}
                                     </CardDescription>
                                 </div>
-                                <Badge className={estadoColors[pedido.estado]}>{pedido.estado}</Badge>
+                                <div className="flex gap-2">
+                                    <Badge className={estadoColors[pedido.estado]}>{pedido.estado}</Badge>
+                                    <Link href={`/pedidos/${pedido.id}/edit`}>
+                                        <Button size="sm" variant="secondary">
+                                            Editar
+                                        </Button>
+                                    </Link>
+                                    <Button
+                                        size="sm"
+                                        variant="destructive"
+                                        onClick={() => {
+                                            if (confirm('¿Estás seguro de eliminar este pedido?')) {
+                                                router.delete(`/pedidos/${pedido.id}`);
+                                            }
+                                        }}
+                                    >
+                                        Eliminar
+                                    </Button>
+                                </div>
                             </div>
                         </CardHeader>
                         <CardContent className="space-y-4">

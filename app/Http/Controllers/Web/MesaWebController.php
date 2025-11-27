@@ -34,4 +34,29 @@ class MesaWebController extends Controller
         Mesa::create($data);
         return redirect()->route('mesas.index')->with('success', 'Mesa creada correctamente');
     }
+
+    public function edit(Mesa $mesa): Response
+    {
+        return Inertia::render('mesas/edit', [
+            'mesa' => $mesa,
+        ]);
+    }
+
+    public function update(Request $request, Mesa $mesa)
+    {
+        $data = $request->validate([
+            'numero' => 'required|string|unique:mesas,numero,' . $mesa->id,
+            'capacidad' => 'required|integer|min:1',
+            'ubicacion' => 'nullable|string',
+            'descripcion' => 'nullable|string',
+        ]);
+        $mesa->update($data);
+        return redirect()->route('mesas.index')->with('success', 'Mesa actualizada correctamente');
+    }
+
+    public function destroy(Mesa $mesa)
+    {
+        $mesa->delete();
+        return redirect()->route('mesas.index')->with('success', 'Mesa eliminada correctamente');
+    }
 }

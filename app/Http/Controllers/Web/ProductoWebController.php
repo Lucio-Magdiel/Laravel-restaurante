@@ -39,4 +39,32 @@ class ProductoWebController extends Controller
         Producto::create($data);
         return redirect()->route('productos.index')->with('success', 'Producto creado correctamente');
     }
+
+    public function edit(Producto $producto): Response
+    {
+        $categorias = Categoria::orderBy('nombre')->get();
+        return Inertia::render('productos/edit', [
+            'producto' => $producto,
+            'categorias' => $categorias,
+        ]);
+    }
+
+    public function update(Request $request, Producto $producto)
+    {
+        $data = $request->validate([
+            'categoria_id' => 'nullable|exists:categorias,id',
+            'nombre' => 'required|string',
+            'precio' => 'required|numeric|min:0',
+            'tipo' => 'nullable|string',
+            'descripcion' => 'nullable|string',
+        ]);
+        $producto->update($data);
+        return redirect()->route('productos.index')->with('success', 'Producto actualizado correctamente');
+    }
+
+    public function destroy(Producto $producto)
+    {
+        $producto->delete();
+        return redirect()->route('productos.index')->with('success', 'Producto eliminado correctamente');
+    }
 }

@@ -79,11 +79,29 @@ export default function PedidosIndex({ pedidos }: Props) {
                                         </TableCell>
                                         <TableCell>{new Date(pedido.created_at).toLocaleString('es-PE')}</TableCell>
                                         <TableCell>
-                                            <Link href={`/pedidos/${pedido.id}`}>
-                                                <Button size="sm" variant="outline">
-                                                    Ver
+                                            <div className="flex gap-2">
+                                                <Link href={`/pedidos/${pedido.id}`}>
+                                                    <Button size="sm" variant="outline">
+                                                        Ver
+                                                    </Button>
+                                                </Link>
+                                                <Link href={`/pedidos/${pedido.id}/edit`}>
+                                                    <Button size="sm" variant="secondary">
+                                                        Editar
+                                                    </Button>
+                                                </Link>
+                                                <Button
+                                                    size="sm"
+                                                    variant="destructive"
+                                                    onClick={() => {
+                                                        if (confirm('¿Estás seguro de eliminar este pedido?')) {
+                                                            router.delete(`/pedidos/${pedido.id}`);
+                                                        }
+                                                    }}
+                                                >
+                                                    Eliminar
                                                 </Button>
-                                            </Link>
+                                            </div>
                                         </TableCell>
                                     </TableRow>
                                 ))

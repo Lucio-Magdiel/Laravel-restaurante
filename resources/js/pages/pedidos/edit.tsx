@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PlusIcon, TrashIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface Mesa {
     id: number;
@@ -26,29 +26,51 @@ interface Producto {
     categoria?: { nombre: string };
 }
 
+interface ItemPedido {
+    producto_id: number;
+    cantidad: number;
+    producto?: Producto;
+    precio_unitario?: number;
+    subtotal?: number;
+}
+
+interface Pedido {
+    id: number;
+    mesa_id: number | null;
+    cliente_id: number | null;
+    notas: string | null;
+    items: ItemPedido[];
+}
+
 interface Props {
+    pedido: Pedido;
     mesas: Mesa[];
     clientes: Cliente[];
     productos: Producto[];
 }
 
-interface ItemPedido {
-    producto_id: number;
-    cantidad: number;
-    producto?: Producto;
-}
-
-export default function PedidosCreate({ mesas, clientes, productos }: Props) {
+export default function PedidosEdit({ pedido, mesas, clientes, productos }: Props) {
     const [items, setItems] = useState<ItemPedido[]>([]);
     const [productoSeleccionado, setProductoSeleccionado] = useState<number | null>(null);
     const [cantidad, setCantidad] = useState(1);
 
-    const { data, setData, post, processing, errors, transform } = useForm({
-        mesa_id: '',
-        cliente_id: '',
-        notas: '',
+    const { data, setData, put, processing, errors, transform } = useForm({
+        mesa_id: pedido.mesa_id ? String(pedido.mesa_id) : '',
+        cliente_id: pedido.cliente_id ? String(pedido.cliente_id) : '',
+        notas: pedido.notas || '',
         items: [] as { producto_id: number; cantidad: number }[],
     });
+
+    useEffect(() => {
+        // Initialize items from pedido
+        if (pedido.items) {
+            setItems(pedido.items.map(item => ({
+                producto_id: item.producto_id || (item as any).id, // Handle potential structure diff
+                cantidad: item.cantidad,
+                producto: item.producto, // Assuming loaded
+            })));
+        }
+    }, [pedido]);
 
     const agregarItem = () => {
         if (!productoSeleccionado) return;
@@ -89,17 +111,17 @@ export default function PedidosCreate({ mesas, clientes, productos }: Props) {
                 cantidad: item.cantidad,
             })),
         }));
-        post('/pedidos');
+        put(`/pedidos/${pedido.id}`);
     };
 
     return (
         <AppLayout>
-            <Head title="Nuevo Pedido" />
+            <Head title={`Editar Pedido #${pedido.id}`} />
             <div className="p-6">
                 <Card className="mx-auto max-w-4xl">
                     <CardHeader>
-                        <CardTitle>Nuevo Pedido</CardTitle>
-                        <CardDescription>Crea un nuevo pedido para el restaurante</CardDescription>
+                        <CardTitle>Editar Pedido #{pedido.id}</CardTitle>
+                        <CardDescription>Modifica los detalles del pedido</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-6">
@@ -234,7 +256,7 @@ export default function PedidosCreate({ mesas, clientes, productos }: Props) {
 
                             <div className="flex gap-2">
                                 <Button type="submit" disabled={processing || items.length === 0}>
-                                    {processing ? 'Creando...' : 'Crear Pedido'}
+                                    {processing ? 'Actualizando...' : 'Actualizar Pedido'}
                                 </Button>
                                 <Button type="button" variant="outline" onClick={() => window.history.back()}>
                                     Cancelar

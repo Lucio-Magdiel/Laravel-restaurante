@@ -13,7 +13,8 @@ class CocinaController extends Controller
     public function index(): Response
     {
         $pedidos = Pedido::with(['items.producto', 'mesa', 'usuario'])
-            ->whereIn('estado', ['pendiente', 'en_progreso'])
+            ->whereIn('estado', ['pendiente', 'en_progreso', 'cancelado'])
+            ->where('updated_at', '>=', now()->subHours(12)) // Only show recent orders to avoid clutter
             ->orderBy('created_at', 'asc')
             ->get();
 
@@ -33,5 +34,13 @@ class CocinaController extends Controller
         $pedido->save();
 
         return back()->with('success', 'Estado actualizado correctamente');
+    }
+
+    public function cancelar(Pedido $pedido)
+    {
+        $pedido->estado = 'cancelado';
+        $pedido->save();
+
+        return back()->with('success', 'Pedido cancelado correctamente');
     }
 }
