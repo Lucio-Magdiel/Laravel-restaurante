@@ -49,6 +49,14 @@ class CajaController extends Controller
         $pedido->hora_pagado = now();
         $pedido->save();
 
+        if ($pedido->mesa_id) {
+            $mesa = $pedido->mesa;
+            if ($mesa) {
+                $mesa->estado = 'disponible';
+                $mesa->save();
+            }
+        }
+
         return back()->with('success', 'Pago registrado correctamente. Recibo: ' . $pago->recibo_numero);
     }
 }

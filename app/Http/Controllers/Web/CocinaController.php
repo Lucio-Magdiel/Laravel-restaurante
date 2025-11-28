@@ -41,6 +41,14 @@ class CocinaController extends Controller
         $pedido->estado = 'cancelado';
         $pedido->save();
 
+        if ($pedido->mesa_id) {
+            $mesa = $pedido->mesa;
+            if ($mesa) {
+                $mesa->estado = 'disponible';
+                $mesa->save();
+            }
+        }
+
         return back()->with('success', 'Pedido cancelado correctamente');
     }
 }

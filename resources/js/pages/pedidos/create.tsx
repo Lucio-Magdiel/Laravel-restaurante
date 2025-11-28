@@ -12,6 +12,7 @@ import { useState } from 'react';
 interface Mesa {
     id: number;
     numero: string;
+    estado: string;
 }
 
 interface Cliente {
@@ -112,8 +113,12 @@ export default function PedidosCreate({ mesas, clientes, productos }: Props) {
                                         </SelectTrigger>
                                         <SelectContent>
                                             {mesas.map((mesa) => (
-                                                <SelectItem key={mesa.id} value={String(mesa.id)}>
-                                                    {mesa.numero}
+                                                <SelectItem
+                                                    key={mesa.id}
+                                                    value={String(mesa.id)}
+                                                    disabled={mesa.estado !== 'disponible'}
+                                                >
+                                                    {mesa.numero} ({mesa.estado})
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>

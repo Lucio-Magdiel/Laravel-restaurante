@@ -120,9 +120,12 @@ export default function ReservasCreate({ mesas, clientes }: Props) {
                                         </SelectTrigger>
                                         <SelectContent>
                                             {mesas.map((mesa) => (
-                                                <SelectItem key={mesa.id} value={mesa.id.toString()}>
-                                                    Mesa {mesa.numero} - Capacidad: {mesa.capacidad} -{' '}
-                                                    {mesa.estado === 'disponible' ? '✓ Disponible' : '⚠ Reservada'}
+                                                <SelectItem
+                                                    key={mesa.id}
+                                                    value={mesa.id.toString()}
+                                                    disabled={mesa.estado !== 'disponible'}
+                                                >
+                                                    Mesa {mesa.numero} - Capacidad: {mesa.capacidad} - {mesa.estado}
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>

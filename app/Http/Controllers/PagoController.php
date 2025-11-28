@@ -31,6 +31,14 @@ class PagoController extends Controller
         $pedido->estado = 'pagado';
         $pedido->hora_pagado = now();
         $pedido->save();
+
+        if ($pedido->mesa_id) {
+            $mesa = $pedido->mesa;
+            if ($mesa) {
+                $mesa->estado = 'disponible';
+                $mesa->save();
+            }
+        }
         return response()->json(['ok' => true, 'pago' => $pago]);
     }
 }

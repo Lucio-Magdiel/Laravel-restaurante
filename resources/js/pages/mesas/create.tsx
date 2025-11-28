@@ -10,7 +10,6 @@ export default function MesasCreate() {
         numero: '',
         capacidad: '',
         ubicacion: '',
-        descripcion: '',
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -63,18 +62,6 @@ export default function MesasCreate() {
                                     placeholder="Sala principal, Terraza..."
                                 />
                                 {errors.ubicacion && <p className="mt-1 text-sm text-red-600">{errors.ubicacion}</p>}
-                            </div>
-
-                            <div>
-                                <Label htmlFor="descripcion">Descripción</Label>
-                                <Input
-                                    id="descripcion"
-                                    value={data.descripcion}
-                                    onChange={(e) => setData('descripcion', e.target.value)}
-                                />
-                                {errors.descripcion && (
-                                    <p className="mt-1 text-sm text-red-600">{errors.descripcion}</p>
-                                )}
                             </div>
 
                             <div className="flex gap-2">

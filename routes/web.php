@@ -19,13 +19,53 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
+        // Self-healing: Sync table statuses based on active orders
+        $activeMesaIds = \App\Models\Pedido::whereNotIn('estado', ['cancelado', 'pagado'])
+            ->whereNotNull('mesa_id')
+            ->pluck('mesa_id')
+            ->unique();
+
+        // Mark tables with active orders as 'ocupada'
+        \App\Models\Mesa::whereIn('id', $activeMesaIds)
+            ->where('estado', '!=', 'ocupada')
+            ->update(['estado' => 'ocupada']);
+
+        // Mark tables without active orders (that are currently 'ocupada') as 'disponible'
+        // We only touch 'ocupada' tables to avoid messing with 'reservada' or 'inactiva'
+        \App\Models\Mesa::whereNotIn('id', $activeMesaIds)
+            ->where('estado', 'ocupada')
+            ->update(['estado' => 'disponible']);
+
         $stats = [
             'pedidos_hoy' => \App\Models\Pedido::whereDate('created_at', today())->count(),
             'pedidos_pendientes' => \App\Models\Pedido::whereIn('estado', ['pendiente', 'en_progreso'])->count(),
             'mesas_ocupadas' => \App\Models\Mesa::where('estado', 'ocupada')->count(),
             'total_ventas_hoy' => \App\Models\Pedido::whereDate('created_at', today())->where('estado', 'pagado')->sum('total'),
         ];
-        return Inertia::render('dashboard', ['stats' => $stats]);
+        $mesas_ocupadas_detalle = \App\Models\Mesa::where('estado', 'ocupada')->get();
+        
+        // Fetch reserved tables for today
+        $mesas_reservadas_detalle = \App\Models\Reserva::with(['mesa', 'cliente'])
+            ->whereDate('fecha_hora_inicio', today())
+            ->whereIn('estado', ['pendiente', 'confirmada'])
+            ->orderBy('fecha_hora_inicio')
+            ->get()
+            ->map(function ($reserva) {
+                return [
+                    'id' => $reserva->mesa->id,
+                    'numero' => $reserva->mesa->numero,
+                    'capacidad' => $reserva->mesa->capacidad,
+                    'ubicacion' => $reserva->mesa->ubicacion,
+                    'cliente' => $reserva->cliente->nombre,
+                    'hora' => $reserva->fecha_hora_inicio->format('H:i'),
+                ];
+            });
+
+        return Inertia::render('dashboard', [
+            'stats' => $stats, 
+            'mesas_ocupadas_detalle' => $mesas_ocupadas_detalle,
+            'mesas_reservadas_detalle' => $mesas_reservadas_detalle
+        ]);
     })->name('dashboard');
 
     // Clientes

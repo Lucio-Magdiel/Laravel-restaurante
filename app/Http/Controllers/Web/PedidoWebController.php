@@ -28,7 +28,7 @@ class PedidoWebController extends Controller
 
     public function create(): Response
     {
-        $mesas = Mesa::where('estado', 'disponible')->orderBy('numero')->get();
+        $mesas = Mesa::orderBy('numero')->get();
         $clientes = Cliente::orderBy('nombre')->limit(100)->get();
         $productos = Producto::with('categoria')->where('activo', true)->orderBy('nombre')->get();
 
@@ -59,6 +59,14 @@ class PedidoWebController extends Controller
                 'total' => 0,
                 'notas' => $data['notas'] ?? null,
             ]);
+
+            if ($pedido->mesa_id) {
+                $mesa = Mesa::find($pedido->mesa_id);
+                if ($mesa) {
+                    $mesa->estado = 'ocupada';
+                    $mesa->save();
+                }
+            }
             $total = 0;
             foreach ($data['items'] as $i) {
                 $producto = Producto::findOrFail($i['producto_id']);
@@ -91,7 +99,7 @@ class PedidoWebController extends Controller
 
     public function edit(Pedido $pedido): Response
     {
-        $pedido->load(['items']);
+        $pedido->load(['items.producto']);
         $mesas = Mesa::where('estado', 'disponible')
             ->orWhere('id', $pedido->mesa_id)
             ->orderBy('numero')
@@ -125,6 +133,25 @@ class PedidoWebController extends Controller
                 'notas' => $data['notas'] ?? null,
             ]);
 
+            // Handle Mesa change
+            if ($pedido->wasChanged('mesa_id')) {
+                $oldMesaId = $pedido->getOriginal('mesa_id');
+                if ($oldMesaId) {
+                    $oldMesa = Mesa::find($oldMesaId);
+                    if ($oldMesa) {
+                        $oldMesa->estado = 'disponible';
+                        $oldMesa->save();
+                    }
+                }
+                if ($pedido->mesa_id) {
+                    $newMesa = Mesa::find($pedido->mesa_id);
+                    if ($newMesa) {
+                        $newMesa->estado = 'ocupada';
+                        $newMesa->save();
+                    }
+                }
+            }
+
             // Sync items: Delete old ones and create new ones (simplest approach for now)
             // Ideally we should diff them to keep IDs if needed, but for a simple restaurant app, replacing is fine.
             $pedido->items()->delete();
@@ -152,6 +179,13 @@ class PedidoWebController extends Controller
 
     public function destroy(Pedido $pedido)
     {
+        if ($pedido->mesa_id) {
+            $mesa = Mesa::find($pedido->mesa_id);
+            if ($mesa) {
+                $mesa->estado = 'disponible';
+                $mesa->save();
+            }
+        }
         $pedido->delete();
         return redirect()->route('pedidos.index')->with('success', 'Pedido eliminado correctamente');
     }

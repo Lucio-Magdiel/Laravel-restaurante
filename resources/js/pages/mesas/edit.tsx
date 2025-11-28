@@ -10,7 +10,6 @@ interface Mesa {
     numero: string;
     capacidad: number;
     ubicacion: string | null;
-    descripcion: string | null;
 }
 
 interface Props {
@@ -22,7 +21,6 @@ export default function MesasEdit({ mesa }: Props) {
         numero: mesa.numero || '',
         capacidad: mesa.capacidad ? String(mesa.capacidad) : '',
         ubicacion: mesa.ubicacion || '',
-        descripcion: mesa.descripcion || '',
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -75,18 +73,6 @@ export default function MesasEdit({ mesa }: Props) {
                                     placeholder="Sala principal, Terraza..."
                                 />
                                 {errors.ubicacion && <p className="mt-1 text-sm text-red-600">{errors.ubicacion}</p>}
-                            </div>
-
-                            <div>
-                                <Label htmlFor="descripcion">Descripción</Label>
-                                <Input
-                                    id="descripcion"
-                                    value={data.descripcion}
-                                    onChange={(e) => setData('descripcion', e.target.value)}
-                                />
-                                {errors.descripcion && (
-                                    <p className="mt-1 text-sm text-red-600">{errors.descripcion}</p>
-                                )}
                             </div>
 
                             <div className="flex gap-2">

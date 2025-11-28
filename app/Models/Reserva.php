@@ -10,7 +10,7 @@ class Reserva extends Model
     use HasFactory;
 
     protected $fillable = [
-        'mesa_id', 'cliente_id', 'usuario_id', 'fecha_hora_inicio', 'fecha_hora_fin', 'estado', 'notas'
+        'mesa_id', 'cliente_id', 'usuario_id', 'fecha_hora_inicio', 'fecha_hora_fin', 'numero_personas', 'estado', 'notas'
     ];
 
     protected $casts = [
